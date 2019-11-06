@@ -22,6 +22,7 @@
 State::State(std::string stateId):
 	stateId_(stateId) {}
 
+State::State() {}
 
 State::State(const State& state):
 	stateId_(state.stateId_) {}

@@ -14,3 +14,7 @@
   - Also the "--help" parameter is aviable, so if you execute "./NFA2DFA --help"
     a unix-style help message will be displayed, detailing how to run the
     program correctly.
+
+
+
+  # PRACTICE UNFINISEHD!

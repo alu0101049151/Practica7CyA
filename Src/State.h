@@ -30,6 +30,7 @@ class State {
 	public:
 		State(std::string stateId);
 		State(const State& state);
+    State();
 		~State();
 
 		std::string getStateId() const;

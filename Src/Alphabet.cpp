@@ -28,3 +28,11 @@ Alphabet::~Alphabet () {}
 void Alphabet::insertAlphabet (const char symbol) {
 	alphabet_.insert(symbol);
 }
+
+/**
+* @brief returns alphabet.
+*/
+std::set<char> Alphabet::getAlphabet() const {
+  return alphabet_;
+}
+

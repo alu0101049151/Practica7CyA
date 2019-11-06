@@ -21,6 +21,7 @@
 
 #include <vector>
 #include <sstream>
+#include <iostream>
 
 #include "Alphabet.h"
 #include "State.h"

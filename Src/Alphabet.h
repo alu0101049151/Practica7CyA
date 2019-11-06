@@ -37,6 +37,11 @@ class Alphabet {
 		*/
 		void insertAlphabet (const char symbol);
 
+    /**
+    * @brief returns alphabet.
+    */
+    std::set<char> getAlphabet() const;
+
 	private:
 		std::set<char> alphabet_; //!< Character set representing the DFA's alphabet
 };

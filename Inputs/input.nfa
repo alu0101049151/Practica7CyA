@@ -1,0 +1,42 @@
+// University of La Laguna
+// Higher School of Engineering and Technology (ESIT)
+// Computer Ingineering degree
+// Subject: Computability and algorithm
+// 
+// DFA representing file
+// Recognized Language: all the sequences formed by a and b that end in "abb".
+// Regular Expression: (a|b)*abb
+/////////////////////////////////////////////////////////////////////////
+2
+~
+a
+b
+11
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+0
+1
+10
+13
+0 ~ 1
+0 ~ 7
+1 ~ 2
+1 ~ 4
+2 a 3
+3 ~ 6
+4 b 5
+5 ~ 6
+6 ~ 1
+6 ~ 7
+7 a 8
+8 b 9
+9 b 10

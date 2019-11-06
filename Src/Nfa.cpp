@@ -7,8 +7,8 @@
  * Grade: 2nd
  * Practice 7 - The Powerset Construction
  * Email: alu0101049151@ull.edu.es
- * Dfa.h file: Dfa class. It represents a Deterministic Finite Automaton.
- *             This file contains the class definition.
+ * Nfa.cpp file: Nfa class. It represents a Nondeterministic Finite Automaton.
+ *               This file contains the class implementation. 
  * References:
  *                Practice statement:
  *                https://campusvirtual.ull.es/1920/pluginfile.php/181073/mod_assign/introattachment/0/CYA_1920_Practica_7.pdf?forcedownload=1
@@ -16,28 +16,31 @@
  *                3/11/2019 - Creation (first version) of the code
  */
 
-#include "Dfa.h"
+#include "Nfa.h"
 
-Dfa::Dfa(std::string& inputFile) {
-  readAndBuildDfa(inputFile);
+Nfa::Nfa(std::string& inputFile) {
+  readAndBuildNfa(inputFile);
 }
 
-Dfa::Dfa(const Dfa& dfa):
-  startState_(dfa.startState_),
-  states_(dfa.states_),
-  finalStates_(dfa.finalStates_),
-  alphabet_(dfa.alphabet_),
-  comments_(dfa.comments_) {}
 
-Dfa::Dfa() {}
+Nfa::Nfa(const Nfa& nfa):
+  startState_(nfa.startState_),
+  states_(nfa.states_),
+  finalStates_(nfa.finalStates_),
+  alphabet_(nfa.alphabet_),
+  transitions_(nfa.transitions_),
+  comments_(nfa.comments_) {}
 
-Dfa::~Dfa() {}
+Nfa::Nfa() {}
+
+
+Nfa::~Nfa() {}
 
 
 /**
 * Returns the start state identifier.
 */
-std::string Dfa::getStartState() const {
+std::string Nfa::getStartState() const {
   return startState_;
 }
 
@@ -45,7 +48,7 @@ std::string Dfa::getStartState() const {
 /**
 * Returns the set of states of the automaton.
 */
-std::set<State> Dfa::getStates() const {
+std::set<State> Nfa::getStates() const {
   return states_;
 }
 
@@ -53,7 +56,7 @@ std::set<State> Dfa::getStates() const {
 /**
 * Returns the set of the final states identifiers.
 */
-std::set<std::string> Dfa::getFinalStates() const {
+std::set<std::string> Nfa::getFinalStates() const {
   return finalStates_;
 }
 
@@ -62,7 +65,7 @@ std::set<std::string> Dfa::getFinalStates() const {
 * Returns the set of chars that represents the alphabet of the
 * automaton.
 */
-Alphabet Dfa::getAlphabet() const {
+Alphabet Nfa::getAlphabet() const {
   return alphabet_;
 }
 
@@ -70,7 +73,7 @@ Alphabet Dfa::getAlphabet() const {
 /**
 * Returns the vector containing all the comments read from the input file.
 */
-std::vector<std::string> Dfa::getComments() const {
+std::vector<std::string> Nfa::getComments() const {
   return comments_;
 }
 
@@ -78,18 +81,17 @@ std::vector<std::string> Dfa::getComments() const {
 /**
 * Returns the set of transitions of the automaton.
 */
-std::set<Transition> Dfa::getTransitions() const {
+std::set<Transition> Nfa::getTransitions() const {
   return transitions_;
 }
 
 
 /**
-* Reads the input file with the Dfa definition and build the automaton 
-* from the read data
+* Reads the input file and builds the Nfa.
 */
-void Dfa::readAndBuildDfa(std::string& dfaDefinition) {
+void Nfa::readAndBuildNfa(std::string& nfaDefinition) {
   std::ifstream inputFile;
-  inputFile.open(dfaDefinition);
+  inputFile.open(nfaDefinition);
 
   if (!inputFile.is_open()) {
     std::cerr << "There was a problem opening the inputfile, ";
@@ -99,12 +101,11 @@ void Dfa::readAndBuildDfa(std::string& dfaDefinition) {
    std::string readed;      //!< Stores what is read every time we read a line from the file
 
    std::getline(inputFile, readed);
-   std::cout << "Readed: " << readed << NEWLINE;
    std::string auxStr = readed.substr (0,3);
-   
+
    bool isComment = auxStr == COMMENT;
    bool noEndComment = auxStr != ENDOFCOMMENTS; // ENDOFCOMMENTS = "///" means the end of comments
-  
+
   //================================================
   // Reading header comments
   //================================================
@@ -112,15 +113,12 @@ void Dfa::readAndBuildDfa(std::string& dfaDefinition) {
      comments_.push_back(readed);
      readed.clear();
      std::getline(inputFile, readed);
-     std::cout << "Readed: " << readed << NEWLINE;
      auxStr = readed.substr (0,3);
-     std::cout << "Auxstr: " << auxStr << NEWLINE;
-     std::cout << "While comentario\n";
    }
-   
+
      int temp;  //!< Used for store the amounts (alpabet symbols, states, etc.)
                 //!< temporarily
-     
+
      //================================
      // Reading the alphabet symbols
      //================================
@@ -129,8 +127,14 @@ void Dfa::readAndBuildDfa(std::string& dfaDefinition) {
      readed.clear();
      char auxChar;
 
+     std::getline(inputFile, readed);  //Read the ~ (epsilon) symbol.
+     auxChar = readed[0];
+     std::cout << "Auxchar:  " << auxChar << NEWLINE;
+     alphabet_.insertAlphabet(auxChar);
+     readed.clear();
+
      for (int i = 0; i < temp; i++) {
-       std::getline(inputFile, readed); 
+       std::getline(inputFile, readed);
        auxChar = readed[0];
        std::cout << "Auxchar:  " << auxChar << NEWLINE;
        alphabet_.insertAlphabet(auxChar);
@@ -138,10 +142,10 @@ void Dfa::readAndBuildDfa(std::string& dfaDefinition) {
      }
 
      //==============================
-     // Reading of Dfa states
+     // Reading of DFA states
      //==============================
      std::getline(inputFile, readed);  // Read the number of automaton states.
-     temp = stoi(readed); 
+     temp = stoi(readed);
      readed.clear();
 
      for (int i = 0; i < temp; ++i) {
@@ -157,7 +161,6 @@ void Dfa::readAndBuildDfa(std::string& dfaDefinition) {
      std::getline(inputFile, readed); // Read the star state.
      startState_ = readed;
      readed.clear();
-     std::cout << "Start State: " << startState_ << NEWLINE;
 
      //==============================
      // Reading final states
@@ -183,57 +186,105 @@ void Dfa::readAndBuildDfa(std::string& dfaDefinition) {
      std::string auxInput;
      std::string auxDestination;
      char auxCharInput;
-     
+
      for (int i = 0; i < temp; ++i) {
        std::getline(inputFile, readed);
        std::stringstream iss(readed);
        iss >> auxCurrentState;
        iss >> auxInput;
        iss >> auxDestination;
-       
-       Transition auxTransition(auxInput[0], auxCurrentState, auxDestination); 
-       transitions_.insert(auxTransition);
 
-       std::cout << "Current State: " << auxCurrentState << NEWLINE;
+       Transition auxTransition(auxInput[0], auxCurrentState, auxDestination);
+       transitions_.insert(auxTransition);
      }
+  }
+}
+
+/**
+* Powerset Construction algorithm.
+*/
+void Nfa::powersetConstruction(std::string& outputFile) {
+  std::set<std::pair<std::string,std::set<State> > > statesDFA; //To indicate that it's unchecked uses the tag "@"
+  std::set<State> T;
+  std::set<State> q0;
+  State auxStart(startState_);
+  T.insert(auxStart);
+  bool repeat = true;
+  bool found = false;
+  int auxStateId = 0;
+  std::string auxStr;
+
+  q0 = epsilonClosure(T);
+  statesDFA.insert(std::pair<std::string, std::set<State> >(UNCHECKED, T) );
+  
+  while (repeat) {
+    repeat = false;
+    found = false;
+    for (auto i: statesDFA) {
+     if (!found) {
+      if (i.first == UNCHECKED) {
+        repeat = true;
+        found = true;
+        auxStr = std::to_string(auxStateId);
+        i.first = auxStr;  // Check the state.
+        auxStateId++;
+        auxStr.clear();
+      }
+      for (auto j: alphabet_.getAlphabet()) {
+        if (j != EPSILON) {
+          std::set<State> auxSet;
+          std::set<State> H;
+          auxSet = move(i, j); //move (T,a);
+          H = epsilonClosure(auxState);
+          
+          if (statesDFa.find(H) == statesDFA.end()) {
+            statesDFA.insert(std::pair<std::string, std::set<State>
+            >(UNCHECKED, H);
+          }
+        }
+      }
+     }
+    }
   }
 }
 
 
 /**
-* @brief Write in the output file the description of the DFA in DOT format.
-* @param outputGv is the file where the DFA will be written in DOT format.
+* @brief Carries out the epsilon-closure of a set of states.
+* @param toAnalize is the state to which the algorithm will be applied.
 */
-void Dfa::drawDFA(std::string& outputGv) {
-  std::ofstream outputFile;
-  outputFile.open(outputGv);
+std::set<State> Nfa::epsilonClosure(std::set<State> T) {
+  std::stack<State> auxStack;
+  std::set<State> eClosure;
 
-  for (int i = 0; i < comments_.size(); ++i) {
-    outputFile << comments_[i] << NEWLINE;
+  for (auto i: T) {
+    auxStack.push(i);
   }
+  eClosure = T;
 
-  outputFile << "digraph DFA {" << NEWLINE;
-  outputFile << S << S << "rankdir=LR;" << NEWLINE;
-  outputFile << S << S << "size = \"10, 4\";" << NEWLINE;
-  outputFile << S << S << "d2styleonly = true;" << NEWLINE;
+  while (!auxStack.empty()) {
+    State p;
+    p = auxStack.top();
+    auxStack.pop();
+    bool found = false;
 
-  outputFile << S << S << "node [shape = none]; \"\"; " << NEWLINE;  // Dummy node for boot state
-  outputFile << S << S << "node [shape = doublecircle];";
-
-  for (auto i: finalStates_) {
-    outputFile << " \"" << i << "\"";
+    for (auto i: transitions_) {
+      if (i.getCurrent() == p.getStateId() && (i.getInput() == EPSILON)) {
+        found = false;
+        for (auto j: eClosure) {
+          if (j.getStateId() == i.getDestination())
+            found = true;
+        }
+        if (!found) {
+          for (auto j: states_) {
+            if (j.getStateId() == i.getDestination()) {
+              eClosure.insert(j);
+              auxStack.push(j);
+            }
+          }
+        }
+      }
+    }
   }
-  outputFile << ";" << NEWLINE;
-
-  outputFile << S << S << "node [shape = circle];" << NEWLINE;
-  outputFile << S << S << "\"\" -> \"" << startState_ << "\";" << NEWLINE;
-
-  for (auto i: transitions_) {
-      outputFile << S << S << "\"" << i.getCurrent() << "\" -> ";
-      outputFile << "\"" << i.getDestination() << "\" ";
-      std::cout << "\"" << i.getDestination() << "\" ";
-      outputFile << "[ label=\"" << i.getInput() << "\" ];" << NEWLINE;
-      std::cout << "[ label=\"" << i.getInput() << "\" ];" << NEWLINE;
-  }
-  outputFile << "}" << NEWLINE;
+  return eClosure;
 }
